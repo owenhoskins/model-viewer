@@ -1,28 +1,8 @@
  /*LOADINGMANAGER*/
 
 
- var blau = new THREE.MeshLambertMaterial({
-     color: 0x4444ff,
-     emissive: 0xff00ff,
-     emissiveIntensity: 0
- });
- var loadingScreen = {
-     scene: new THREE.Scene(),
-     light7: new THREE.AmbientLight(0xffffff, 1),
-     camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, .1, 500),
-
-     box: new THREE.Mesh(
-         new THREE.BoxGeometry(0.5, 0.02, 0.04), blau
-     )
- };
  var loadingManager = null;
  var RESOURCES_LOADED = false;
-
- // It can be treated just like our main scene.
- loadingScreen.box.position.set(0, 0, 5);
- loadingScreen.camera.lookAt(loadingScreen.box.position);
- loadingScreen.scene.add(loadingScreen.box);
- loadingScreen.scene.add(loadingScreen.light7);
 
  // Create a loading manager to set RESOURCES_LOADED when appropriate.
  // Pass loadingManager to all resource loaders.
@@ -212,11 +192,6 @@ pbr = new THREE.MeshPhysicalMaterial({
      // This block runs while resources are loading.
      if (RESOURCES_LOADED == false) {
          requestAnimationFrame(animate);
-         blau.emissiveIntensity += 0.005;
-         loadingScreen.box.scale.x += 0.1;
-         if (loadingScreen.box.scale.x > 10) loadingScreen.box.scale.x += 10;
-
-         renderer.render(loadingScreen.scene, loadingScreen.camera, loadingScreen.light);
          return; // Stop the function here.
      }
 
