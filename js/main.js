@@ -117,14 +117,49 @@ metalness.warpS = metalness.wrapT = THREE.RepeatWrapping;
 var normal = texloader.load(texpath + 'bottle_low_Lopoly_Normal.jpg');
 normal.warpS = normal.wrapT = THREE.RepeatWrapping;
 
+// selavy_label.png
+var labelTexture = texloader.load(texpath + 'selavy_label.png');
+labelTexture.warpS = labelTexture.wrapT = THREE.RepeatWrapping;
+
+// Crown_Sticker_6.png
+var stickerTexture = texloader.load(texpath + 'Crown_Sticker_6.png');
+stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
+
+// TexturesCom_PaperCrumpled0030_1_seamless_S.jpg
+var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
+foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
+
 
 /*MATERIALS*/
 
-pbr = new THREE.MeshPhysicalMaterial({
+var base = new THREE.MeshPhysicalMaterial({
    map: baseColor,
-   metalnessMap: metalness,
+   //metalnessMap: metalness,
    metalness: 0.65,
-   roughnessMap: roughness,
+   roughness: 0.5,
+   envMap: studio2,
+   envMapIntensity: 0.5,
+});
+
+var label = new THREE.MeshPhysicalMaterial({
+   map: labelTexture,
+   metalness: 0.65,
+   roughness: 0.5,
+   envMap: studio2,
+   envMapIntensity: 0.5,
+});
+
+var sticker = new THREE.MeshPhysicalMaterial({
+   map: stickerTexture,
+   metalness: 0.65,
+   roughness: 0.5,
+   envMap: studio2,
+   envMapIntensity: 0.5,
+});
+
+var foil = new THREE.MeshPhysicalMaterial({
+   map: foilTexture,
+   metalness: 0.65,
    roughness: 0.5,
    normalMap: normal,
    envMap: studio2,
@@ -132,12 +167,29 @@ pbr = new THREE.MeshPhysicalMaterial({
 });
 
 
-
  /*MODELLE*/
 
+ /* BASE */
+ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
+     var material = base;
+     noshadows(geometry, 50, material);
+ });
 
- jsonloader.load(modelpath + 'bottle_faces.json', function (geometry) {
-     var material = pbr;
+ /* LABEL */
+ jsonloader.load(modelpath + 'bottle_label.json', function (geometry) {
+     var material = label;
+     noshadows(geometry, 50, material);
+ });
+
+ /* STICKER */
+ jsonloader.load(modelpath + 'bottle_sticker.json', function (geometry) {
+     var material = sticker;
+     noshadows(geometry, 50, material);
+ });
+
+ /* FOIL */
+ jsonloader.load(modelpath + 'bottle_foil.json', function (geometry) {
+     var material = foil;
      noshadows(geometry, 50, material);
  });
 
