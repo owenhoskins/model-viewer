@@ -3,9 +3,62 @@
 
 <meta charset="UTF-8">
 
+
+<script id="vertexShader" type="x-shader/x-vertex">
+
+  /*
+    SHADERS
+    http://2pha.com/demos/threejs/shaders/fresnel_cube_env_2.html
+  */
+
+  uniform float fresnelBias;
+  uniform float fresnelScale;
+  uniform float fresnelPower;
+
+  varying float vReflectionFactor;
+  varying vec3 vI;
+  varying vec3 vWorldNormal;
+
+  void main() {
+    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+
+    vWorldNormal = normalize( mat3( modelMatrix[0].xyz, modelMatrix[1].xyz, modelMatrix[2].xyz ) * normal );
+
+    vI = worldPosition.xyz - cameraPosition;
+
+    vReflectionFactor = fresnelBias + fresnelScale * pow( 1.0 + dot( normalize( vI ), vWorldNormal ), fresnelPower );
+
+    gl_Position = projectionMatrix * mvPosition;
+  }
+</script>
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+
+  uniform vec3 color;
+  uniform samplerCube envMap;
+
+
+  varying float vReflectionFactor;
+  varying vec3 vI;
+  varying vec3 vWorldNormal;
+
+  void main() {
+    vec3 reflection = reflect( vI, vWorldNormal );
+    vec4 envColor = textureCube( envMap, vec3( -reflection.x, reflection.yz ) );
+    gl_FragColor = vec4(mix(color, envColor.xyz, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), 1.0);
+  }
+
+</script>
+
+
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="js/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
+<script src="js/Stats.js"></script>
+<script src="js/dat.gui.min.js"></script>
+<script src="js/tinybox.js"></script>
+
 <link rel="shortcut icon" href="../icon.gif" type="image/gif" />
 <script src="js/Detector.js"></script>
 <link rel="stylesheet" href="css/main.css">

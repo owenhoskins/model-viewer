@@ -1,3 +1,8 @@
+
+  var camera, scene, renderer;
+  var mesh, material, controls, sky;
+
+
  /*LOADINGMANAGER*/
 
 
@@ -18,7 +23,6 @@
  };
 
 
-
  /* SCENE*/
  scene = new THREE.Scene();
 
@@ -33,7 +37,6 @@
 
 
  /*RENDERER*/
-
 
  renderer = new THREE.WebGLRenderer({
      alpha: true,
@@ -51,28 +54,16 @@
 
 
  /*RENDERER to HTML*/
-
-
  $("#webGL-container").append(renderer.domElement);
-
 
 
  /*ORBITCONTROLS*/
 
-
  controls = new THREE.OrbitControls(camera, renderer.domElement);
-
  controls.enableDamping = false;
  controls.dampingFactor = 0.5;
  controls.maxDistance = 50; //maximale Entfernung
  controls.minDistance = 15; // minimale Entfernung
-
- //Beschränkung Kamera Hoch-Runter
- //controls.minPolarAngle = 0; // radians
- //controls.maxPolarAngle = Math.PI/2; // Kamera nicht unter Boden
- //Beschränkung Kamera links-rechts
- //controls.minAzimuthAngle = - Math.PI/2; // radians
- //controls.maxAzimuthAngle = Math.PI/2; // radians
  controls.enableZoom = true;
 
 
@@ -88,8 +79,6 @@
 
  /*Envoirement Map*/
 
-
-
  var path = "textures/cube/studio2/";
  var format = '.jpg';
  var urls = [
@@ -97,13 +86,86 @@
 						path + 'py' + format, path + 'ny' + format,
 						path + 'pz' + format, path + 'nz' + format
 					];
- studio2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
- studio2.format = THREE.RGBFormat;
+  var skyCube = new THREE.CubeTextureLoader(loadingManager).load(urls);
+  skyCube.format = THREE.RGBFormat;
+  skyCube.mapping = THREE.CubeRefractionMapping;
+
+  // scene.background = skyCube;
+
+  // Skybox
+/*
+  var skyshader = THREE.ShaderLib[ "cube" ];
+  skyshader.uniforms[ "tCube" ].value = skyCube;
+
+  console.log('skyshader: ', skyshader)
+
+  var skymaterial = new THREE.ShaderMaterial( {
+
+    fragmentShader: skyshader.fragmentShader,
+    vertexShader: skyshader.vertexShader,
+    uniforms: skyshader.uniforms,
+    depthWrite: false,
+    side: THREE.BackSide
+
+  } );
+
+  sky = new THREE.Mesh( new THREE.BoxGeometry( 1500, 1500, 1500 ), skymaterial );
+  sky.visible = true;
+  scene.add( sky );
+*/
+
+  var uniforms = {
+      color: {
+        type: "c",
+        value: new THREE.Color(0x484836),
+      },
+      envMap: {
+        type: "t",
+        value: skyCube
+      },
+      fresnelBias: {
+        type: "f",
+        value: 0.1,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 1.0 // only used for dat.gui, not needed for production
+      },
+      fresnelScale: {
+        type: "f",
+        value: 1.0,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 10.0 // only used for dat.gui, not needed for production
+      },
+      fresnelPower: {
+        type: 'f',
+        value: 2.0,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 10.0 // only used for dat.gui, not needed for production
+      }
+  };
+
+  // these load in the shader from the script tags
+  var vertexShader = document.getElementById('vertexShader').text;
+  var fragmentShader = document.getElementById('fragmentShader').text;
+
+  var newBase = new THREE.ShaderMaterial(
+  {
+    uniforms : uniforms,
+    vertexShader : vertexShader,
+    fragmentShader : fragmentShader,
+  });
+
+  console.log("newBase: ", newBase)
+
+  function addMesh(geometry, s, material) {
+     var mesh = new THREE.Mesh(geometry, material);
+     mesh.scale.set(s, s, s);
+     //mesh.castShadow = true;
+     //mesh.receiveShadow = true;
+     scene.add(mesh);
+  };
 
 
-
- /*LOAD TEXTURES*/
-
+/*LOAD TEXTURES*/
 
 var baseColor = texloader.load(texpath + 'bottle_low_Lopoly_BaseColor.jpg');
 baseColor.warpS = baseColor.wrapT = THREE.RepeatWrapping;
@@ -132,37 +194,44 @@ foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
 
 /*MATERIALS*/
 
+var baseRefraction = new THREE.MeshPhongMaterial({
+  color: 0x484836,
+  envMap: skyCube,
+  refractionRatio: 0.98,
+  reflectivity: 0.9
+});
+
 var base = new THREE.MeshPhysicalMaterial({
    map: baseColor,
    //metalnessMap: metalness,
    metalness: 0.65,
    roughness: 0.5,
-   envMap: studio2,
+   envMap: skyCube,
    envMapIntensity: 0.5,
 });
 
 var label = new THREE.MeshPhysicalMaterial({
    map: labelTexture,
-   metalness: 0.65,
+   metalness: 0,
    roughness: 0.5,
-   envMap: studio2,
+   envMap: skyCube,
    envMapIntensity: 0.5,
 });
 
 var sticker = new THREE.MeshPhysicalMaterial({
    map: stickerTexture,
-   metalness: 0.65,
+   metalness: 0,
    roughness: 0.5,
-   envMap: studio2,
+   envMap: skyCube,
    envMapIntensity: 0.5,
 });
 
 var foil = new THREE.MeshPhysicalMaterial({
    map: foilTexture,
-   metalness: 0.65,
-   roughness: 0.5,
+   metalness: 0.4,
+   roughness: 0.3,
    normalMap: normal,
-   envMap: studio2,
+   envMap: skyCube,
    envMapIntensity: 0.5,
 });
 
@@ -171,40 +240,25 @@ var foil = new THREE.MeshPhysicalMaterial({
 
  /* BASE */
  jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
-     var material = base;
-     noshadows(geometry, 50, material);
+    addMesh(geometry, 50, newBase);
  });
 
  /* LABEL */
- jsonloader.load(modelpath + 'bottle_label.json', function (geometry) {
+ jsonloader.load(modelpath + 'bottle_label-edgesplit.json', function (geometry) {
      var material = label;
-     noshadows(geometry, 50, material);
+     addMesh(geometry, 50, material);
  });
 
  /* STICKER */
  jsonloader.load(modelpath + 'bottle_sticker.json', function (geometry) {
      var material = sticker;
-     noshadows(geometry, 50, material);
+     addMesh(geometry, 50, material);
  });
 
- /* FOIL */
- jsonloader.load(modelpath + 'bottle_foil.json', function (geometry) {
-     var material = foil;
-     noshadows(geometry, 50, material);
- });
-
-
-
-
- function noshadows(geometry, s, material) {
-     var mesh = new THREE.Mesh(geometry, material);
-     mesh.scale.set(s, s, s);
-     mesh.castShadow = true;
-     mesh.receiveShadow = true;
-     scene.add(mesh);
- };
-
-
+  /* FOIL */
+  jsonloader.load(modelpath + 'bottle_foil.json', function (geometry) {
+    addMesh(geometry, 50, foil);
+  });
 
 
  /*LIGHTS*/
@@ -238,6 +292,11 @@ var foil = new THREE.MeshPhysicalMaterial({
  ambient.intensity = 2;
  scene.add(ambient);
 
+  // Stats
+  stats = new Stats();
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.bottom = '0px';
+  document.body.appendChild( stats.domElement );
 
  function animate() {
 
@@ -251,6 +310,7 @@ var foil = new THREE.MeshPhysicalMaterial({
      requestAnimationFrame(animate);
 
      renderer.render(scene, camera);
+     stats.update();
  };
 
  window.addEventListener("resize", function () {
@@ -260,3 +320,35 @@ var foil = new THREE.MeshPhysicalMaterial({
  });
 
  animate();
+
+
+  function setupControls(ob) {
+    var gui = new dat.GUI();
+    var uniformsFolder = gui.addFolder('Uniforms');
+    for(key in ob){
+      if(ob[key].type == 'f'){
+        var controller = uniformsFolder.add(ob[key], 'value').name(key);
+        if(typeof ob[key].min != 'undefined'){
+          controller.min(ob[key].min).name(key);
+        }
+        if(typeof ob[key].max != 'undefined'){
+          controller.max(ob[key].max).name(key);
+        }
+        controller.onChange(function(value){
+          this.object.value = parseFloat(value);
+        });
+      }else if(ob[key].type == 'c'){
+        ob[key].guivalue = [ob[key].value.r * 255, ob[key].value.g * 255, ob[key].value.b * 255];
+        var controller = uniformsFolder.addColor(ob[key], 'guivalue').name(key);
+        controller.onChange(function(value){
+          this.object.value.setRGB(value[0]/255, value[1]/255, value[2]/255);
+        });
+      }
+    }
+    uniformsFolder.open();
+
+  }
+
+
+
+  setupControls(uniforms);
