@@ -90,7 +90,7 @@
   skyCube.format = THREE.RGBFormat;
   skyCube.mapping = THREE.CubeRefractionMapping;
 
-  // scene.background = skyCube;
+  //scene.background = skyCube;
 
   // Skybox
 /*
@@ -114,7 +114,27 @@
   scene.add( sky );
 */
 
+/*
+  const shaderTexture = new THREE.CubeTextureLoader(loadingManager).load(['textures/bottle_low_Lopoly_Metallic.jpg']);
+  shaderTexture.format = THREE.RGBFormat;
+  shaderTexture.mapping = THREE.CubeRefractionMapping;
+  */
+
+
+  //var shaderTexture = texloader.load(texpath + 'bottle_low_Lopoly_BaseColor.jpg');
+  //shaderTexture.warpS = shaderTexture.wrapT = THREE.RepeatWrapping;
+
+  //var textureSphere = texloader.load( "textures/metal.jpg" );
+
+
+  //skyCube.mapping = THREE.CubeRefractionMapping;
+  skyCube.mapping = THREE.CubeReflectionMapping;
+
   var uniforms = {
+      // map: { type: 't', value: shaderTexture },
+      // defines: { USE_MAP: true },
+      //depthWrite: false,
+      //side: THREE.BackSide,
       color: {
         type: "c",
         value: new THREE.Color(0x484836),
@@ -154,7 +174,51 @@
     fragmentShader : fragmentShader,
   });
 
-  console.log("newBase: ", newBase)
+
+/*
+
+  from: https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_envmaps.html
+
+  skyCube.mapping = THREE.CubeReflectionMapping;
+
+  var cubeShader = THREE.ShaderLib[ "cube" ];
+  var newBase = new THREE.ShaderMaterial( {
+    fragmentShader: cubeShader.fragmentShader,
+    vertexShader: cubeShader.vertexShader,
+    uniforms: cubeShader.uniforms,
+    depthWrite: false,
+    side: THREE.BackSide
+  } );
+
+  newBase.uniforms[ "tCube" ].value = skyCube;
+
+*/
+
+
+  //Using three FresnelShader
+  //https://threejs.org/examples/#webgl_materials_shaders_fresnel
+
+
+  var shader = THREE.FresnelShader;
+  var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+
+  //skyCube.mapping = THREE.CubeRefractionMapping;
+/*  skyCube.mapping = THREE.CubeReflectionMapping;
+
+  uniforms[ "tCube" ].value = skyCube;
+
+  var newBase = new THREE.ShaderMaterial( {
+    uniforms: uniforms,
+    vertexShader: shader.vertexShader,
+    fragmentShader: shader.fragmentShader,
+    depthWrite: false,
+    side: THREE.BackSide
+  } );
+
+  scene.background = skyCube;
+
+
+*/
 
   function addMesh(geometry, s, material) {
      var mesh = new THREE.Mesh(geometry, material);
