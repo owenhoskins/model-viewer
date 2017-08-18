@@ -79,7 +79,7 @@
 
  /*Envoirement Map*/
 
- var path = "textures/cube/Park2/";
+ var path = "textures/cube/wetransfer/";
  var format = '.jpg';
  var urls = [
 						path + 'px' + format, path + 'nx' + format,
@@ -90,135 +90,11 @@
   skyCube.format = THREE.RGBFormat;
   skyCube.mapping = THREE.CubeRefractionMapping;
 
-  scene.background = skyCube;
+  var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
+  skyCube2.format = THREE.RGBFormat;
+  skyCube2.mapping = THREE.CubeReflectionMapping;
 
-  // Skybox
-/*
-  var skyshader = THREE.ShaderLib[ "cube" ];
-  skyshader.uniforms[ "tCube" ].value = skyCube;
-
-  console.log('skyshader: ', skyshader)
-
-  var skymaterial = new THREE.ShaderMaterial( {
-
-    fragmentShader: skyshader.fragmentShader,
-    vertexShader: skyshader.vertexShader,
-    uniforms: skyshader.uniforms,
-    depthWrite: false,
-    side: THREE.BackSide
-
-  } );
-
-  sky = new THREE.Mesh( new THREE.BoxGeometry( 1500, 1500, 1500 ), skymaterial );
-  sky.visible = true;
-  scene.add( sky );
-*/
-
-/*
-  const shaderTexture = new THREE.CubeTextureLoader(loadingManager).load(['textures/bottle_low_Lopoly_Metallic.jpg']);
-  shaderTexture.format = THREE.RGBFormat;
-  shaderTexture.mapping = THREE.CubeRefractionMapping;
-  */
-
-
-  //var shaderTexture = texloader.load(texpath + 'bottle_low_Lopoly_BaseColor.jpg');
-  //shaderTexture.warpS = shaderTexture.wrapT = THREE.RepeatWrapping;
-
-  //var textureSphere = texloader.load( "textures/metal.jpg" );
-
-
-  //skyCube.mapping = THREE.CubeRefractionMapping;
-  skyCube.mapping = THREE.CubeReflectionMapping;
-
-  var uniforms = {
-      // map: { type: 't', value: shaderTexture },
-      // defines: { USE_MAP: true },
-      //depthWrite: false,
-      //side: THREE.BackSide,
-      color: {
-        type: "c",
-        value: new THREE.Color(0x484836),
-      },
-      envMap: {
-        type: "t",
-        value: skyCube
-      },
-      fresnelBias: {
-        type: "f",
-        value: 0.1,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 1.0 // only used for dat.gui, not needed for production
-      },
-      fresnelScale: {
-        type: "f",
-        value: 1.0,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 10.0 // only used for dat.gui, not needed for production
-      },
-      fresnelPower: {
-        type: 'f',
-        value: 2.0,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 10.0 // only used for dat.gui, not needed for production
-      }
-  };
-
-  // these load in the shader from the script tags
-  var vertexShader = document.getElementById('vertexShader').text;
-  var fragmentShader = document.getElementById('fragmentShader').text;
-
-  var newBase = new THREE.ShaderMaterial(
-  {
-    uniforms : uniforms,
-    vertexShader : vertexShader,
-    fragmentShader : fragmentShader
-  });
-
-
-/*
-
-  from: https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_envmaps.html
-
-  skyCube.mapping = THREE.CubeReflectionMapping;
-
-  var cubeShader = THREE.ShaderLib[ "cube" ];
-  var newBase = new THREE.ShaderMaterial( {
-    fragmentShader: cubeShader.fragmentShader,
-    vertexShader: cubeShader.vertexShader,
-    uniforms: cubeShader.uniforms,
-    depthWrite: false,
-    side: THREE.BackSide
-  } );
-
-  newBase.uniforms[ "tCube" ].value = skyCube;
-
-*/
-
-
-  //Using three FresnelShader
-  //https://threejs.org/examples/#webgl_materials_shaders_fresnel
-
-
-  var shader = THREE.FresnelShader;
-  var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
-
-  //skyCube.mapping = THREE.CubeRefractionMapping;
-/*  skyCube.mapping = THREE.CubeReflectionMapping;
-
-  uniforms[ "tCube" ].value = skyCube;
-
-  var newBase = new THREE.ShaderMaterial( {
-    uniforms: uniforms,
-    vertexShader: shader.vertexShader,
-    fragmentShader: shader.fragmentShader,
-    depthWrite: false,
-    side: THREE.BackSide
-  } );
-
-  scene.background = skyCube;
-
-
-*/
+  scene.background = skyCube
 
   function addMesh(geometry, s, material) {
      var mesh = new THREE.Mesh(geometry, material);
@@ -266,23 +142,54 @@ var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seam
 foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
 
 
+var shader = THREE.FresnelShader;
+var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+
+uniforms[ "tCube" ].value = skyCube;
+
+var bottleBackMaterial = new THREE.ShaderMaterial( {
+  uniforms: uniforms,
+  vertexShader: shader.vertexShader,
+  fragmentShader: shader.fragmentShader,
+  side: THREE.BackSide,
+  //transparent: true
+} );
+
+  var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
+      map: null,
+      envMap: skyCube2,
+      color: 0x444400,
+      metalness: 0.0,
+      roughness: 0,
+      opacity: 0.8,
+      side: THREE.FrontSide,
+      transparent: true,
+      //shading: THREE.SmoothShading,
+      envMapIntensity: 3,
+      premultipliedAlpha: true
+    } );
+
+
+  // var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
+  //     map: null,
+  //     envMap: skyCube,
+  //     color: 0x444400,
+  //     metalness: 1.0,
+  //     roughness: 0,
+  //     opacity: 0.98,
+  //     side: THREE.BackSide,
+  //     transparent: true,
+  //     //shading: THREE.SmoothShading,
+  //     envMapIntensity: 1,
+  //     premultipliedAlpha: true
+  //   } );
+
+
+
+
 /*MATERIALS*/
 
-var baseRefraction = new THREE.MeshPhongMaterial({
-  color: 0x484836,
-  envMap: skyCube,
-  refractionRatio: 0.98,
-  reflectivity: 0.9
-});
 
-var base = new THREE.MeshPhysicalMaterial({
-  map: baseColor,
-  //metalnessMap: metalness,
-  metalness: 0.65,
-  roughness: 0.5,
-  envMap: skyCube,
-  envMapIntensity: 0.5
-});
 
 var label = new THREE.MeshPhysicalMaterial({
    map: labelTexture,
@@ -313,7 +220,12 @@ var foil = new THREE.MeshPhysicalMaterial({
 
  /* BASE */
  jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
-    addMesh(geometry, 50, baseRefraction);
+    addMesh(geometry, 50, bottleFrontMaterial);
+ });
+
+ /* BASE */
+ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
+    addMesh(geometry, 50, bottleBackMaterial);
  });
 
  /* LABEL */
