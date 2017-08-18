@@ -79,7 +79,7 @@
 
  /*Envoirement Map*/
 
- var path = "textures/cube/studio2/";
+ var path = "textures/cube/Park2/";
  var format = '.jpg';
  var urls = [
 						path + 'px' + format, path + 'nx' + format,
@@ -88,79 +88,35 @@
 					];
   var skyCube = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube.format = THREE.RGBFormat;
-  skyCube.mapping = THREE.CubeRefractionMapping;
 
-  // scene.background = skyCube;
 
-  // Skybox
-/*
-  var skyshader = THREE.ShaderLib[ "cube" ];
-  skyshader.uniforms[ "tCube" ].value = skyCube;
+ var path = "textures/cube/wetransfer/";
+ var format = '.jpg';
+ var urls = [
+            path + 'px' + format, path + 'nx' + format,
+            path + 'py' + format, path + 'ny' + format,
+            path + 'pz' + format, path + 'nz' + format
+          ];
+  var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
+  skyCube2.format = THREE.RGBFormat;
 
-  console.log('skyshader: ', skyshader)
-
-  var skymaterial = new THREE.ShaderMaterial( {
-
-    fragmentShader: skyshader.fragmentShader,
-    vertexShader: skyshader.vertexShader,
-    uniforms: skyshader.uniforms,
-    depthWrite: false,
-    side: THREE.BackSide
-
-  } );
-
-  sky = new THREE.Mesh( new THREE.BoxGeometry( 1500, 1500, 1500 ), skymaterial );
-  sky.visible = true;
-  scene.add( sky );
-*/
-
-  var uniforms = {
-      color: {
-        type: "c",
-        value: new THREE.Color(0x484836),
-      },
-      envMap: {
-        type: "t",
-        value: skyCube
-      },
-      fresnelBias: {
-        type: "f",
-        value: 0.1,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 1.0 // only used for dat.gui, not needed for production
-      },
-      fresnelScale: {
-        type: "f",
-        value: 1.0,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 10.0 // only used for dat.gui, not needed for production
-      },
-      fresnelPower: {
-        type: 'f',
-        value: 2.0,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 10.0 // only used for dat.gui, not needed for production
-      }
-  };
-
-  // these load in the shader from the script tags
-  var vertexShader = document.getElementById('vertexShader').text;
-  var fragmentShader = document.getElementById('fragmentShader').text;
-
-  var newBase = new THREE.ShaderMaterial(
-  {
-    uniforms : uniforms,
-    vertexShader : vertexShader,
-    fragmentShader : fragmentShader,
-  });
-
-  console.log("newBase: ", newBase)
+  scene.background = skyCube
 
   function addMesh(geometry, s, material) {
      var mesh = new THREE.Mesh(geometry, material);
      mesh.scale.set(s, s, s);
-     //mesh.castShadow = true;
-     //mesh.receiveShadow = true;
+
+      mesh.position.set( 0, -7, 0 );
+      mesh.__dirtyPosition = true;
+
+      // Change the object's rotation
+      //mesh.rotation.set(0, 90, 0);
+      //mesh.__dirtyRotation = true;
+
+     // https://stackoverflow.com/a/30154137/497344
+     // mesh.rotation.y = Math.PI / 3.5;
+     // mesh.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 2));
+     tween(mesh);
      scene.add(mesh);
   };
 
@@ -191,24 +147,106 @@ stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
 var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
 foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
 
+/*
+var shader = THREE.FresnelShader;
+var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+
+uniforms[ "tCube" ].value = skyCube;
+
+var bottleBackMaterial = new THREE.ShaderMaterial( {
+  uniforms: uniforms,
+  vertexShader: shader.vertexShader,
+  fragmentShader: shader.fragmentShader,
+  side: THREE.BackSide,
+  //transparent: true
+} );*/
+
+
+  skyCube.mapping = THREE.CubeRefractionMapping;
+
+  skyCube2.mapping = THREE.CubeReflectionMapping;
+
+/*
+  var uniforms = {
+      color: {
+        type: "c",
+        value: new THREE.Color(0x444400),
+      },
+      envMap: {
+        type: "t",
+        value: skyCube
+      },
+      fresnelBias: {
+        type: "f",
+        value: 0.1,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 1.0 // only used for dat.gui, not needed for production
+      },
+      fresnelScale: {
+        type: "f",
+        value: 2.0,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 10.0 // only used for dat.gui, not needed for production
+      },
+      fresnelPower: {
+        type: 'f',
+        value: 1.6,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 10.0 // only used for dat.gui, not needed for production
+      }
+  };
+
+  // these load in the shader from the script tags
+  var vertexShader = document.getElementById('vertexShader').text;
+  var fragmentShader = document.getElementById('fragmentShader').text;
+
+  var bottleBackMaterial = new THREE.ShaderMaterial(
+  {
+    uniforms : uniforms,
+    vertexShader : vertexShader,
+    fragmentShader : fragmentShader,
+    //side: THREE.FrontSide,
+    transparent: true,
+    opacity: 0.5
+  });*/
+
+  // reflection
+  var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
+      map: null,
+      envMap: skyCube2,
+      color: 0x000000,
+      metalness: 1.0,
+      roughness: 0,
+      opacity: 1,
+      side: THREE.FrontSide,
+      transparent: true,
+      shading: THREE.SmoothShading,
+      envMapIntensity: 1,
+      premultipliedAlpha: true
+    } );
+
+  // refraction
+   var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
+       map: null,
+       envMap: skyCube,
+       color: 0x050501,
+       metalness: 0.5,
+       roughness: 0,
+       opacity: 0.9,
+       //side: THREE.BackSide,
+       transparent: true,
+       shading: THREE.SmoothShading,
+       envMapIntensity: 1,
+       refractionRatio: 0.95,
+       premultipliedAlpha: true
+     } );
+
+
+
 
 /*MATERIALS*/
 
-var baseRefraction = new THREE.MeshPhongMaterial({
-  color: 0x484836,
-  envMap: skyCube,
-  refractionRatio: 0.98,
-  reflectivity: 0.9
-});
 
-var base = new THREE.MeshPhysicalMaterial({
-   map: baseColor,
-   //metalnessMap: metalness,
-   metalness: 0.65,
-   roughness: 0.5,
-   envMap: skyCube,
-   envMapIntensity: 0.5,
-});
 
 var label = new THREE.MeshPhysicalMaterial({
    map: labelTexture,
@@ -232,15 +270,19 @@ var foil = new THREE.MeshPhysicalMaterial({
    roughness: 0.3,
    normalMap: normal,
    envMap: skyCube,
-   envMapIntensity: 0.5,
+   envMapIntensity: 0.1,
 });
 
 
- /*MODELLE*/
+
+ /* BASE */
+jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
+    addMesh(geometry, 50, bottleFrontMaterial);
+});
 
  /* BASE */
  jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
-    addMesh(geometry, 50, newBase);
+    addMesh(geometry, 50, bottleBackMaterial);
  });
 
  /* LABEL */
@@ -256,7 +298,7 @@ var foil = new THREE.MeshPhysicalMaterial({
  });
 
   /* FOIL */
-  jsonloader.load(modelpath + 'bottle_foil.json', function (geometry) {
+  jsonloader.load(modelpath + 'foil.json', function (geometry) {
     addMesh(geometry, 50, foil);
   });
 
@@ -300,18 +342,34 @@ var foil = new THREE.MeshPhysicalMaterial({
 
  function animate() {
 
-     // This block runs while resources are loading.
-     if (RESOURCES_LOADED == false) {
-         requestAnimationFrame(animate);
-         return; // Stop the function here.
-     }
+    // This block runs while resources are loading.
+    if (RESOURCES_LOADED == false) {
+      requestAnimationFrame(animate);
+      return; // Stop the function here.
+    }
 
-
-     requestAnimationFrame(animate);
-
-     renderer.render(scene, camera);
-     stats.update();
+    requestAnimationFrame(animate);
+    //TWEEN.update();
+    renderer.render(scene, camera);
+    stats.update();
  };
+
+ function tween(mesh) {
+  if (mesh) {
+      var tween = new TWEEN.Tween(mesh.rotation)
+        .to({ y: "-" + Math.PI/2}, 2500) // relative animation
+        .onComplete(function() {
+            // Check that the full 360 degrees of rotation,
+            // and calculate the remainder of the division to avoid overflow.
+            if (Math.abs(mesh.rotation.y)>=2*Math.PI) {
+                mesh.rotation.y = mesh.rotation.y % (2*Math.PI);
+            }
+        })
+        .start();
+      tween.repeat(Infinity)
+    }
+
+ }
 
  window.addEventListener("resize", function () {
      camera.aspect = window.innerWidth / window.innerHeight;
