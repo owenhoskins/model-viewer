@@ -79,7 +79,7 @@
 
  /*Envoirement Map*/
 
- var path = "textures/cube/wetransfer/";
+ var path = "textures/cube/Park2/";
  var format = '.jpg';
  var urls = [
 						path + 'px' + format, path + 'nx' + format,
@@ -88,11 +88,17 @@
 					];
   var skyCube = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube.format = THREE.RGBFormat;
-  skyCube.mapping = THREE.CubeRefractionMapping;
 
+
+ var path = "textures/cube/wetransfer/";
+ var format = '.jpg';
+ var urls = [
+            path + 'px' + format, path + 'nx' + format,
+            path + 'py' + format, path + 'ny' + format,
+            path + 'pz' + format, path + 'nz' + format
+          ];
   var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube2.format = THREE.RGBFormat;
-  skyCube2.mapping = THREE.CubeReflectionMapping;
 
   scene.background = skyCube
 
@@ -141,7 +147,7 @@ stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
 var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
 foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
 
-
+/*
 var shader = THREE.FresnelShader;
 var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
@@ -153,36 +159,87 @@ var bottleBackMaterial = new THREE.ShaderMaterial( {
   fragmentShader: shader.fragmentShader,
   side: THREE.BackSide,
   //transparent: true
-} );
+} );*/
 
+
+  skyCube.mapping = THREE.CubeRefractionMapping;
+
+  skyCube2.mapping = THREE.CubeReflectionMapping;
+
+/*
+  var uniforms = {
+      color: {
+        type: "c",
+        value: new THREE.Color(0x444400),
+      },
+      envMap: {
+        type: "t",
+        value: skyCube
+      },
+      fresnelBias: {
+        type: "f",
+        value: 0.1,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 1.0 // only used for dat.gui, not needed for production
+      },
+      fresnelScale: {
+        type: "f",
+        value: 2.0,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 10.0 // only used for dat.gui, not needed for production
+      },
+      fresnelPower: {
+        type: 'f',
+        value: 1.6,
+        min: 0.0, // only used for dat.gui, not needed for production
+        max: 10.0 // only used for dat.gui, not needed for production
+      }
+  };
+
+  // these load in the shader from the script tags
+  var vertexShader = document.getElementById('vertexShader').text;
+  var fragmentShader = document.getElementById('fragmentShader').text;
+
+  var bottleBackMaterial = new THREE.ShaderMaterial(
+  {
+    uniforms : uniforms,
+    vertexShader : vertexShader,
+    fragmentShader : fragmentShader,
+    //side: THREE.FrontSide,
+    transparent: true,
+    opacity: 0.5
+  });*/
+
+  // reflection
   var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
       map: null,
       envMap: skyCube2,
-      color: 0x444400,
-      metalness: 0.0,
+      color: 0x000000,
+      metalness: 1.0,
       roughness: 0,
-      opacity: 0.8,
+      opacity: 1,
       side: THREE.FrontSide,
       transparent: true,
-      //shading: THREE.SmoothShading,
-      envMapIntensity: 3,
+      shading: THREE.SmoothShading,
+      envMapIntensity: 1,
       premultipliedAlpha: true
     } );
 
-
-  // var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
-  //     map: null,
-  //     envMap: skyCube,
-  //     color: 0x444400,
-  //     metalness: 1.0,
-  //     roughness: 0,
-  //     opacity: 0.98,
-  //     side: THREE.BackSide,
-  //     transparent: true,
-  //     //shading: THREE.SmoothShading,
-  //     envMapIntensity: 1,
-  //     premultipliedAlpha: true
-  //   } );
+  // refraction
+   var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
+       map: null,
+       envMap: skyCube,
+       color: 0x050501,
+       metalness: 0.5,
+       roughness: 0,
+       opacity: 0.9,
+       //side: THREE.BackSide,
+       transparent: true,
+       shading: THREE.SmoothShading,
+       envMapIntensity: 1,
+       refractionRatio: 0.95,
+       premultipliedAlpha: true
+     } );
 
 
 
@@ -219,9 +276,9 @@ var foil = new THREE.MeshPhysicalMaterial({
 
 
  /* BASE */
- jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
+jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
     addMesh(geometry, 50, bottleFrontMaterial);
- });
+});
 
  /* BASE */
  jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
