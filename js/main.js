@@ -79,7 +79,7 @@
 
  /*Envoirement Map*/
 
- var path = "textures/cube/studio2/";
+ var path = "textures/cube/Park2/";
  var format = '.jpg';
  var urls = [
 						path + 'px' + format, path + 'nx' + format,
@@ -90,7 +90,7 @@
   skyCube.format = THREE.RGBFormat;
   skyCube.mapping = THREE.CubeRefractionMapping;
 
-  //scene.background = skyCube;
+  scene.background = skyCube;
 
   // Skybox
 /*
@@ -171,7 +171,7 @@
   {
     uniforms : uniforms,
     vertexShader : vertexShader,
-    fragmentShader : fragmentShader,
+    fragmentShader : fragmentShader
   });
 
 
@@ -223,8 +223,18 @@
   function addMesh(geometry, s, material) {
      var mesh = new THREE.Mesh(geometry, material);
      mesh.scale.set(s, s, s);
-     //mesh.castShadow = true;
-     //mesh.receiveShadow = true;
+
+      mesh.position.set( 0, -7, 0 );
+      mesh.__dirtyPosition = true;
+
+      // Change the object's rotation
+      //mesh.rotation.set(0, 90, 0);
+      //mesh.__dirtyRotation = true;
+
+     // https://stackoverflow.com/a/30154137/497344
+     // mesh.rotation.y = Math.PI / 3.5;
+     // mesh.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 2));
+     tween(mesh);
      scene.add(mesh);
   };
 
@@ -266,12 +276,12 @@ var baseRefraction = new THREE.MeshPhongMaterial({
 });
 
 var base = new THREE.MeshPhysicalMaterial({
-   map: baseColor,
-   //metalnessMap: metalness,
-   metalness: 0.65,
-   roughness: 0.5,
-   envMap: skyCube,
-   envMapIntensity: 0.5,
+  map: baseColor,
+  //metalnessMap: metalness,
+  metalness: 0.65,
+  roughness: 0.5,
+  envMap: skyCube,
+  envMapIntensity: 0.5
 });
 
 var label = new THREE.MeshPhysicalMaterial({
@@ -296,15 +306,14 @@ var foil = new THREE.MeshPhysicalMaterial({
    roughness: 0.3,
    normalMap: normal,
    envMap: skyCube,
-   envMapIntensity: 0.5,
+   envMapIntensity: 0.1,
 });
 
 
- /*MODELLE*/
 
  /* BASE */
  jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
-    addMesh(geometry, 50, newBase);
+    addMesh(geometry, 50, baseRefraction);
  });
 
  /* LABEL */
@@ -320,7 +329,7 @@ var foil = new THREE.MeshPhysicalMaterial({
  });
 
   /* FOIL */
-  jsonloader.load(modelpath + 'bottle_foil.json', function (geometry) {
+  jsonloader.load(modelpath + 'foil.json', function (geometry) {
     addMesh(geometry, 50, foil);
   });
 
@@ -364,18 +373,34 @@ var foil = new THREE.MeshPhysicalMaterial({
 
  function animate() {
 
-     // This block runs while resources are loading.
-     if (RESOURCES_LOADED == false) {
-         requestAnimationFrame(animate);
-         return; // Stop the function here.
-     }
+    // This block runs while resources are loading.
+    if (RESOURCES_LOADED == false) {
+      requestAnimationFrame(animate);
+      return; // Stop the function here.
+    }
 
-
-     requestAnimationFrame(animate);
-
-     renderer.render(scene, camera);
-     stats.update();
+    requestAnimationFrame(animate);
+    //TWEEN.update();
+    renderer.render(scene, camera);
+    stats.update();
  };
+
+ function tween(mesh) {
+  if (mesh) {
+      var tween = new TWEEN.Tween(mesh.rotation)
+        .to({ y: "-" + Math.PI/2}, 2500) // relative animation
+        .onComplete(function() {
+            // Check that the full 360 degrees of rotation,
+            // and calculate the remainder of the division to avoid overflow.
+            if (Math.abs(mesh.rotation.y)>=2*Math.PI) {
+                mesh.rotation.y = mesh.rotation.y % (2*Math.PI);
+            }
+        })
+        .start();
+      tween.repeat(Infinity)
+    }
+
+ }
 
  window.addEventListener("resize", function () {
      camera.aspect = window.innerWidth / window.innerHeight;
