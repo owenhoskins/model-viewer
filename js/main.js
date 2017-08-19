@@ -27,8 +27,8 @@
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 600);
   camera.position.x = 0;
-  camera.position.y = 0;
-  camera.position.z = 25;
+  camera.position.y = -10;
+  camera.position.z = 26;
   camera.lookAt(scene.position);
 
 
@@ -94,7 +94,7 @@
   var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube2.format = THREE.RGBFormat;
 
-  scene.background = skyCube
+  //scene.background = skyCube
 
 
   function addMesh(geometry, s, material) {
@@ -136,7 +136,7 @@
     color: 0x0F1E00,
     metalness: 0.5,
     roughness: 0.5,
-    opacity: 0.8,
+    opacity: 0.65,
     transparent: true,
     shading: THREE.SmoothShading,
     envMapIntensity: 5,
@@ -152,10 +152,10 @@
     color: 0x050501,
     metalness: 0.5,
     roughness: 0,
-    opacity: 0.8,
+    opacity: 0.65,
     transparent: true,
     shading: THREE.SmoothShading,
-    envMapIntensity: 1,
+    envMapIntensity: 0.5,
     refractionRatio: 0.95, // CubeRefractionMapping
     premultipliedAlpha: true
   });
@@ -311,7 +311,7 @@
     }
 
     requestAnimationFrame(animate);
-    // TWEEN.update();
+    TWEEN.update();
     /*for ( var i = 0, l = objects.length; i < l; i ++ ) {
       var object = objects[ i ];
       object.rotation.y += 0.005;
@@ -319,6 +319,28 @@
     renderer.render(scene, camera);
     stats.update();
   };
+
+
+ function backgroundVideo () {
+    var aspectRatio = 9 / 16
+    var wW = parseInt(window.innerWidth)
+    var wH = parseInt(window.innerHeight)
+    var height = Math.ceil(wW * aspectRatio)
+    var isLandscape = wH < height
+
+    var video = document.getElementById("video")
+    if (isLandscape) {
+      video.style.width = wW + "px";
+      video.style.height = "auto"
+    } else {
+      video.style.width = "auto";
+      video.style.height = wH + "px";
+    }
+ }
+
+
+  backgroundVideo()
+
 
  function tween(mesh) {
     if (mesh) {
@@ -340,6 +362,7 @@
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    backgroundVideo()
   });
 
   animate();
