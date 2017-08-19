@@ -214,14 +214,16 @@ var bottleBackMaterial = new THREE.ShaderMaterial( {
   var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
       map: null,
       envMap: skyCube2,
-      color: 0x000000,
+      normalMap: normal,
+      normalScale: new THREE.Vector2( 0, 1 ),
+      color: 0x050501,
       metalness: 1.0,
       roughness: 0,
-      opacity: 1,
+      opacity: 0.8,
       side: THREE.FrontSide,
       transparent: true,
       shading: THREE.SmoothShading,
-      envMapIntensity: 1,
+      envMapIntensity: 2.5,
       premultipliedAlpha: true
     } );
 
@@ -229,15 +231,17 @@ var bottleBackMaterial = new THREE.ShaderMaterial( {
    var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
        map: null,
        envMap: skyCube,
+       normalMap: normal,
+       normalScale: new THREE.Vector2( 0, 1 ),
        color: 0x050501,
        metalness: 0.5,
        roughness: 0,
-       opacity: 0.9,
+       opacity: 0.8,
        //side: THREE.BackSide,
        transparent: true,
        shading: THREE.SmoothShading,
        envMapIntensity: 1,
-       refractionRatio: 0.95,
+       refractionRatio: 0.95, // CubeRefractionMapping
        premultipliedAlpha: true
      } );
 
