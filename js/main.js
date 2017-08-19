@@ -2,285 +2,245 @@
   var camera, scene, renderer;
   var mesh, material, controls, sky;
 
+  /*LOADINGMANAGER*/
 
- /*LOADINGMANAGER*/
+  var loadingManager = null;
+  var RESOURCES_LOADED = false;
 
+  // Create a loading manager to set RESOURCES_LOADED when appropriate.
+  // Pass loadingManager to all resource loaders.
+  loadingManager = new THREE.LoadingManager();
 
- var loadingManager = null;
- var RESOURCES_LOADED = false;
+  loadingManager.onProgress = function (item, loaded, total) {
+    console.log(item, loaded, total);
+  };
 
- // Create a loading manager to set RESOURCES_LOADED when appropriate.
- // Pass loadingManager to all resource loaders.
- loadingManager = new THREE.LoadingManager();
+  loadingManager.onLoad = function () {
+    console.log("loaded all resources");
+    RESOURCES_LOADED = true;
+  };
 
- loadingManager.onProgress = function (item, loaded, total) {
-     console.log(item, loaded, total);
- };
+  /* SCENE*/
+  scene = new THREE.Scene();
 
- loadingManager.onLoad = function () {
-     console.log("loaded all resources");
-     RESOURCES_LOADED = true;
- };
+  /*CAMERA*/
 
-
- /* SCENE*/
- scene = new THREE.Scene();
-
-
- /*CAMERA*/
-
- camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 600);
- camera.position.x = 0;
- camera.position.y = 0;
- camera.position.z = 50;
- camera.lookAt(scene.position);
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 600);
+  camera.position.x = 0;
+  camera.position.y = 0;
+  camera.position.z = 25;
+  camera.lookAt(scene.position);
 
 
- /*RENDERER*/
+  /*RENDERER*/
 
- renderer = new THREE.WebGLRenderer({
-     alpha: true,
-     antialias: true
- });
+  renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true
+  });
 
- /*renderer.setClearColor(0xe0e0e0);*/
- renderer.setSize(window.innerWidth, window.innerHeight);
- renderer.setPixelRatio(window.devicePixelRatio);
- renderer.gammaInput = true;
- renderer.gammaOutput = true;
- renderer.toneMapping = THREE.CineonToneMapping;
- renderer.shadowMap.enabled = true;
- renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  /*renderer.setClearColor(0xe0e0e0);*/
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.gammaInput = true;
+  renderer.gammaOutput = true;
+  renderer.toneMapping = THREE.CineonToneMapping;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+  /*RENDERER to HTML*/
 
- /*RENDERER to HTML*/
- $("#webGL-container").append(renderer.domElement);
+  document.getElementById("webGL-container").appendChild( renderer.domElement );
 
+  /*ORBITCONTROLS*/
 
- /*ORBITCONTROLS*/
-
- controls = new THREE.OrbitControls(camera, renderer.domElement);
- controls.enableDamping = false;
- controls.dampingFactor = 0.5;
- controls.maxDistance = 50; //maximale Entfernung
- controls.minDistance = 15; // minimale Entfernung
- controls.enableZoom = true;
-
-
- /* LOADER und PFADE*/
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = false;
+  controls.dampingFactor = 0.5;
+  controls.maxDistance = 50; //maximale Entfernung
+  controls.minDistance = 15; // minimale Entfernung
+  controls.enableZoom = true;
 
 
- var texloader = new THREE.TextureLoader(loadingManager);
+  /* LOADER */
+  var texloader = new THREE.TextureLoader(loadingManager);
+  var jsonloader = new THREE.JSONLoader(loadingManager);
+  var texpath = 'textures/';
+  var modelpath = 'models/';
 
- var jsonloader = new THREE.JSONLoader(loadingManager);
- var texpath = 'textures/';
- var modelpath = 'models/';
 
+  /*Enviroment Map*/
 
- /*Envoirement Map*/
-
- var path = "textures/cube/Park2/";
- var format = '.jpg';
- var urls = [
-						path + 'px' + format, path + 'nx' + format,
-						path + 'py' + format, path + 'ny' + format,
-						path + 'pz' + format, path + 'nz' + format
-					];
+  // CubeRefractionMapping
+  var path = "textures/cube/Park2/";
+  var format = '.jpg';
+  var urls = [
+  	path + 'px' + format, path + 'nx' + format,
+  	path + 'py' + format, path + 'ny' + format,
+  	path + 'pz' + format, path + 'nz' + format
+  ];
   var skyCube = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube.format = THREE.RGBFormat;
 
 
- var path = "textures/cube/wetransfer/";
- var format = '.jpg';
- var urls = [
-            path + 'px' + format, path + 'nx' + format,
-            path + 'py' + format, path + 'ny' + format,
-            path + 'pz' + format, path + 'nz' + format
-          ];
+  // CubeReflectionMapping
+  var path = "textures/cube/green/";
+  var format = '.jpg';
+  var urls = [
+    path + 'px' + format, path + 'nx' + format,
+    path + 'py' + format, path + 'ny' + format,
+    path + 'pz' + format, path + 'nz' + format
+  ];
   var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube2.format = THREE.RGBFormat;
 
   scene.background = skyCube
 
+
   function addMesh(geometry, s, material) {
-     var mesh = new THREE.Mesh(geometry, material);
-     mesh.scale.set(s, s, s);
-
-      mesh.position.set( 0, -7, 0 );
-      mesh.__dirtyPosition = true;
-
-      // Change the object's rotation
-      //mesh.rotation.set(0, 90, 0);
-      //mesh.__dirtyRotation = true;
-
-     // https://stackoverflow.com/a/30154137/497344
-     // mesh.rotation.y = Math.PI / 3.5;
-     // mesh.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 2));
-     tween(mesh);
-     scene.add(mesh);
+    var mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.set(s, s, s);
+    //moves the bottle down when its origin point was a the bottom
+    //mesh.position.set( 0, -7, 0 );
+    //mesh.__dirtyPosition = true;
+    tween(mesh);
+    scene.add(mesh);
   };
 
+  /* LOAD TEXTURES */
 
-/*LOAD TEXTURES*/
+  //var normal = texloader.load(texpath + 'bottle_low_Lopoly_Normal.jpg');
+  //normal.warpS = normal.wrapT = THREE.RepeatWrapping;
 
-var baseColor = texloader.load(texpath + 'bottle_low_Lopoly_BaseColor.jpg');
-baseColor.warpS = baseColor.wrapT = THREE.RepeatWrapping;
+  // selavy_label.png
+  var labelTexture = texloader.load(texpath + 'selavy_label.png');
+  labelTexture.warpS = labelTexture.wrapT = THREE.RepeatWrapping;
 
-var roughness = texloader.load(texpath + 'bottle_low_Lopoly_Roughness.jpg');
-roughness.warpS = roughness.wrapT = THREE.RepeatWrapping;
+  // Crown_Sticker_6.png
+  var stickerTexture = texloader.load(texpath + 'Crown_Sticker_6.png');
+  stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
 
-var metalness = texloader.load(texpath + 'bottle_low_Lopoly_Metallic.jpg');
-metalness.warpS = metalness.wrapT = THREE.RepeatWrapping;
+  // TexturesCom_PaperCrumpled0030_1_seamless_S.jpg
+  var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
+  foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
 
-var normal = texloader.load(texpath + 'bottle_low_Lopoly_Normal.jpg');
-normal.warpS = normal.wrapT = THREE.RepeatWrapping;
-
-// selavy_label.png
-var labelTexture = texloader.load(texpath + 'selavy_label.png');
-labelTexture.warpS = labelTexture.wrapT = THREE.RepeatWrapping;
-
-// Crown_Sticker_6.png
-var stickerTexture = texloader.load(texpath + 'Crown_Sticker_6.png');
-stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
-
-// TexturesCom_PaperCrumpled0030_1_seamless_S.jpg
-var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
-foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
-
-
-
-  skyCube2.mapping = THREE.CubeReflectionMapping;
-
+  /* MATERIALS */
 
   // reflection
+  skyCube2.mapping = THREE.CubeReflectionMapping;
+
   var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
-      map: null,
-      envMap: skyCube2,
-      normalMap: normal,
-      normalScale: new THREE.Vector2( 0, 1 ),
-      color: 0x050501,
-      metalness: 1.0,
-      roughness: 0,
-      opacity: 0.8,
-      side: THREE.FrontSide,
-      transparent: true,
-      shading: THREE.SmoothShading,
-      envMapIntensity: 2.5,
-      premultipliedAlpha: true
-    } );
+    map: null,
+    envMap: skyCube2,
+    color: 0x0F1E00,
+    metalness: 0.5,
+    roughness: 0.5,
+    opacity: 0.8,
+    transparent: true,
+    shading: THREE.SmoothShading,
+    envMapIntensity: 5,
+    premultipliedAlpha: true
+  });
 
   // refraction
-    skyCube.mapping = THREE.CubeRefractionMapping;
+  skyCube.mapping = THREE.CubeRefractionMapping;
 
-   var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
-       map: null,
-       envMap: skyCube,
-       normalMap: normal,
-       normalScale: new THREE.Vector2( 0, 1 ),
-       color: 0x050501,
-       metalness: 0.5,
-       roughness: 0,
-       opacity: 0.8,
-       //side: THREE.BackSide,
-       transparent: true,
-       shading: THREE.SmoothShading,
-       envMapIntensity: 1,
-       refractionRatio: 0.95, // CubeRefractionMapping
-       premultipliedAlpha: true
-     } );
+  var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
+    map: null,
+    envMap: skyCube,
+    color: 0x050501,
+    metalness: 0.5,
+    roughness: 0,
+    opacity: 0.8,
+    transparent: true,
+    shading: THREE.SmoothShading,
+    envMapIntensity: 1,
+    refractionRatio: 0.95, // CubeRefractionMapping
+    premultipliedAlpha: true
+  });
 
+  var label = new THREE.MeshPhysicalMaterial({
+     map: labelTexture,
+     metalness: 0,
+     roughness: 0.5,
+     envMap: skyCube,
+     envMapIntensity: 0.5,
+  });
 
+  var sticker = new THREE.MeshPhysicalMaterial({
+     map: stickerTexture,
+     metalness: 0,
+     roughness: 0.5,
+     envMap: skyCube,
+     envMapIntensity: 0.5,
+  });
 
-
-/*MATERIALS*/
-
-
-
-var label = new THREE.MeshPhysicalMaterial({
-   map: labelTexture,
-   metalness: 0,
-   roughness: 0.5,
-   envMap: skyCube,
-   envMapIntensity: 0.5,
-});
-
-var sticker = new THREE.MeshPhysicalMaterial({
-   map: stickerTexture,
-   metalness: 0,
-   roughness: 0.5,
-   envMap: skyCube,
-   envMapIntensity: 0.5,
-});
-
-var foil = new THREE.MeshPhysicalMaterial({
-   map: foilTexture,
-   metalness: 0.4,
-   roughness: 0.3,
-   normalMap: normal,
-   envMap: skyCube,
-   envMapIntensity: 0.1,
-});
+  var foil = new THREE.MeshPhysicalMaterial({
+     //map: foilTexture,
+     metalness: 0.4,
+     roughness: 0.3,
+     //normalMap: normal,
+     envMap: skyCube,
+     envMapIntensity: 0.1,
+  });
 
 
-
- /* BASE */
-jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
+  /* BASE REFLECTION */
+  jsonloader.load(modelpath + 'bottle-reduced.json', function (geometry) {
     addMesh(geometry, 49.9, bottleFrontMaterial);
-});
+  });
 
- /* BASE */
- jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
+  /* BASE REFRACTION */
+  jsonloader.load(modelpath + 'bottle-reduced.json', function (geometry) {
     addMesh(geometry, 50, bottleBackMaterial);
- });
+  });
 
- /* LABEL */
- jsonloader.load(modelpath + 'bottle_label-edgesplit.json', function (geometry) {
+  /* LABEL */
+  jsonloader.load(modelpath + 'label-reduced.json', function (geometry) {
      var material = label;
      addMesh(geometry, 50, material);
- });
+  });
 
- /* STICKER */
- jsonloader.load(modelpath + 'bottle_sticker.json', function (geometry) {
+  /* STICKER */
+  jsonloader.load(modelpath + 'crown-label-reduced.json', function (geometry) {
      var material = sticker;
      addMesh(geometry, 50, material);
- });
+  });
 
   /* FOIL */
-  jsonloader.load(modelpath + 'foil.json', function (geometry) {
+  jsonloader.load(modelpath + 'foil-reduced.json', function (geometry) {
     addMesh(geometry, 50, foil);
   });
 
 
- /*LIGHTS*/
+  /*LIGHTS*/
+
+  Light1 = new THREE.PointLight(0xffffff);
+  Light1.castShadow = true;
+  Light1.position.set(12.56, 50, -4.29);
+  Light1.intensity = 1.58;
+  Light1.distance = 250;
+  Light1.decay = 2;
+  Light1.shadow.camera.near = 10;
+  Light1.shadow.camera.far = 100;
+  Light1.shadow.camera.fov = 50;
+  scene.add(Light1);
 
 
- Light1 = new THREE.PointLight(0xffffff);
- Light1.castShadow = true;
- Light1.position.set(12.56, 50, -4.29);
- Light1.intensity = 1.58;
- Light1.distance = 250;
- Light1.decay = 2;
- Light1.shadow.camera.near = 10;
- Light1.shadow.camera.far = 100;
- Light1.shadow.camera.fov = 50;
- scene.add(Light1);
+  Light2 = new THREE.PointLight(0xffffff);
+  Light2.castShadow = true;
+  Light2.position.set(-34.62, 39.52, -5.41);
+  Light2.intensity = 1.83;
+  Light2.distance = 250;
+  Light2.decay = 2;
+  Light2.shadow.camera.near = 10;
+  Light2.shadow.camera.far = 100;
+  Light2.shadow.camera.fov = 50;
+  scene.add(Light2);
 
-
- Light2 = new THREE.PointLight(0xffffff);
- Light2.castShadow = true;
- Light2.position.set(-34.62, 39.52, -5.41);
- Light2.intensity = 1.83;
- Light2.distance = 250;
- Light2.decay = 2;
- Light2.shadow.camera.near = 10;
- Light2.shadow.camera.far = 100;
- Light2.shadow.camera.fov = 50;
- scene.add(Light2);
-
-
- ambient = new THREE.AmbientLight(0xffffff)
- ambient.intensity = 2;
- scene.add(ambient);
+  ambient = new THREE.AmbientLight(0xffffff)
+  ambient.intensity = 2;
+  scene.add(ambient);
 
   // Stats
   stats = new Stats();
@@ -288,7 +248,7 @@ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
   stats.domElement.style.bottom = '0px';
   document.body.appendChild( stats.domElement );
 
- function animate() {
+  function animate() {
 
     // This block runs while resources are loading.
     if (RESOURCES_LOADED == false) {
@@ -297,13 +257,13 @@ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
     }
 
     requestAnimationFrame(animate);
-    TWEEN.update();
+    //TWEEN.update();
     renderer.render(scene, camera);
     stats.update();
- };
+  };
 
  function tween(mesh) {
-  if (mesh) {
+    if (mesh) {
       var tween = new TWEEN.Tween(mesh.rotation)
         .to({ y: "-" + Math.PI/2}, 2500) // relative animation
         .onComplete(function() {
@@ -316,17 +276,17 @@ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
         .start();
       tween.repeat(Infinity)
     }
+  }
 
- }
+  window.addEventListener("resize", function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 
- window.addEventListener("resize", function () {
-     camera.aspect = window.innerWidth / window.innerHeight;
-     camera.updateProjectionMatrix();
-     renderer.setSize(window.innerWidth, window.innerHeight);
- });
+  animate();
 
- animate();
-
+/*
 
   function setupControls(ob) {
     var gui = new dat.GUI();
@@ -355,6 +315,5 @@ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
 
   }
 
-
-
   setupControls(uniforms);
+*/
