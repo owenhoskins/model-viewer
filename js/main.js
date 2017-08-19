@@ -1,6 +1,6 @@
 
   var camera, scene, renderer;
-  var mesh, material, controls, sky;
+  var mesh, material, controls, sky, objects = [];
 
   /*LOADINGMANAGER*/
 
@@ -105,6 +105,7 @@
     //mesh.__dirtyPosition = true;
     tween(mesh);
     scene.add(mesh);
+    objects.push( mesh );
   };
 
   /* LOAD TEXTURES */
@@ -163,7 +164,7 @@
      map: labelTexture,
      metalness: 0,
      roughness: 0.5,
-     envMap: skyCube,
+     envMap: skyCube2,
      envMapIntensity: 0.5,
   });
 
@@ -171,16 +172,16 @@
      map: stickerTexture,
      metalness: 0,
      roughness: 0.5,
-     envMap: skyCube,
+     envMap: skyCube2,
      envMapIntensity: 0.5,
   });
 
   var foil = new THREE.MeshPhysicalMaterial({
      //map: foilTexture,
-     metalness: 0.4,
-     roughness: 0.3,
+     metalness: 0,
+     roughness: 0.1,
      //normalMap: normal,
-     envMap: skyCube,
+     envMap: skyCube2,
      envMapIntensity: 0.1,
   });
 
@@ -213,18 +214,71 @@
   });
 
 
-  /*LIGHTS*/
+  // add hemi lights
+  var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 );
+  hemiLight.color.setHSL( 0.6, 1, 0.6 );
+  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+  hemiLight.position.set( 0, 500, 0 );
+  scene.add( hemiLight );
 
+  // this is the Sun
+  var dirLight = new THREE.DirectionalLight( 0xffffff, 0.4 );
+  dirLight.color.setHSL( 0.1, 1, 0.95 );
+  dirLight.position.set( 40, -50, 50 ); // fromX, fromY, fromZ
+  dirLight.position.multiplyScalar( 50 );
+  scene.add( dirLight );
+
+  // this is the Sun
+  var dirLight = new THREE.DirectionalLight( 0xffffff, 0.4 );
+  dirLight.color.setHSL( 0.1, 1, 0.95 );
+  dirLight.position.set( -60, -50, 150 ); // fromX, fromY, fromZ
+  dirLight.position.multiplyScalar( 50 );
+  scene.add( dirLight );
+
+
+
+  //dirLight.position.set( 1, 0.75, 1 );
+  //scene.add( dirLight );
+
+  // dirLight.shadowCameraVisible = true;
+  /*dirLight.castShadow = true;
+  dirLight.shadowMapWidth = dirLight.shadowMapHeight = 1024*2;
+  var d = 30;
+  dirLight.shadowCameraLeft = -d;
+  dirLight.shadowCameraRight = d;
+  dirLight.shadowCameraTop = d;
+  dirLight.shadowCameraBottom = -d;
+  // the magic is here - this needs to be tweaked if you change dimensions
+  dirLight.shadowCameraFar = 3500;
+  dirLight.shadowBias = -0.000001;
+  dirLight.shadowDarkness = 0.35;
+  scene.add( dirLight );
+*/
+
+  /*LIGHTS*/
+/*
   Light1 = new THREE.PointLight(0xffffff);
   Light1.castShadow = true;
-  Light1.position.set(12.56, 50, -4.29);
-  Light1.intensity = 1.58;
+  Light1.position.set(90, 20, 140); // x, y, z,
+  Light1.intensity = .5;
   Light1.distance = 250;
   Light1.decay = 2;
   Light1.shadow.camera.near = 10;
   Light1.shadow.camera.far = 100;
   Light1.shadow.camera.fov = 50;
   scene.add(Light1);
+
+
+  Light2 = new THREE.PointLight(0xffffff);
+  Light2.castShadow = true;
+  Light2.position.set(-90, 40, -60); // x, y, z,
+  Light2.intensity = .5;
+  Light2.distance = 250;
+  Light2.decay = 2;
+  Light2.shadow.camera.near = 10;
+  Light2.shadow.camera.far = 100;
+  Light2.shadow.camera.fov = 50;
+  scene.add(Light2);
 
 
   Light2 = new THREE.PointLight(0xffffff);
@@ -240,7 +294,7 @@
 
   ambient = new THREE.AmbientLight(0xffffff)
   ambient.intensity = 2;
-  scene.add(ambient);
+  scene.add(ambient);*/
 
   // Stats
   stats = new Stats();
@@ -257,7 +311,11 @@
     }
 
     requestAnimationFrame(animate);
-    //TWEEN.update();
+    // TWEEN.update();
+    /*for ( var i = 0, l = objects.length; i < l; i ++ ) {
+      var object = objects[ i ];
+      object.rotation.y += 0.005;
+    }*/
     renderer.render(scene, camera);
     stats.update();
   };
