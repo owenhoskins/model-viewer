@@ -147,68 +147,10 @@ stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
 var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
 foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
 
-/*
-var shader = THREE.FresnelShader;
-var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
-uniforms[ "tCube" ].value = skyCube;
-
-var bottleBackMaterial = new THREE.ShaderMaterial( {
-  uniforms: uniforms,
-  vertexShader: shader.vertexShader,
-  fragmentShader: shader.fragmentShader,
-  side: THREE.BackSide,
-  //transparent: true
-} );*/
-
-
-  skyCube.mapping = THREE.CubeRefractionMapping;
 
   skyCube2.mapping = THREE.CubeReflectionMapping;
 
-/*
-  var uniforms = {
-      color: {
-        type: "c",
-        value: new THREE.Color(0x444400),
-      },
-      envMap: {
-        type: "t",
-        value: skyCube
-      },
-      fresnelBias: {
-        type: "f",
-        value: 0.1,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 1.0 // only used for dat.gui, not needed for production
-      },
-      fresnelScale: {
-        type: "f",
-        value: 2.0,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 10.0 // only used for dat.gui, not needed for production
-      },
-      fresnelPower: {
-        type: 'f',
-        value: 1.6,
-        min: 0.0, // only used for dat.gui, not needed for production
-        max: 10.0 // only used for dat.gui, not needed for production
-      }
-  };
-
-  // these load in the shader from the script tags
-  var vertexShader = document.getElementById('vertexShader').text;
-  var fragmentShader = document.getElementById('fragmentShader').text;
-
-  var bottleBackMaterial = new THREE.ShaderMaterial(
-  {
-    uniforms : uniforms,
-    vertexShader : vertexShader,
-    fragmentShader : fragmentShader,
-    //side: THREE.FrontSide,
-    transparent: true,
-    opacity: 0.5
-  });*/
 
   // reflection
   var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
@@ -228,6 +170,8 @@ var bottleBackMaterial = new THREE.ShaderMaterial( {
     } );
 
   // refraction
+    skyCube.mapping = THREE.CubeRefractionMapping;
+
    var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
        map: null,
        envMap: skyCube,
@@ -281,7 +225,7 @@ var foil = new THREE.MeshPhysicalMaterial({
 
  /* BASE */
 jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
-    addMesh(geometry, 50, bottleFrontMaterial);
+    addMesh(geometry, 49.9, bottleFrontMaterial);
 });
 
  /* BASE */
@@ -353,7 +297,7 @@ jsonloader.load(modelpath + 'bottle_base.json', function (geometry) {
     }
 
     requestAnimationFrame(animate);
-    //TWEEN.update();
+    TWEEN.update();
     renderer.render(scene, camera);
     stats.update();
  };
