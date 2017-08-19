@@ -94,7 +94,7 @@
   var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
   skyCube2.format = THREE.RGBFormat;
 
-  //scene.background = skyCube
+  scene.background = skyCube
 
 
   function addMesh(geometry, s, material) {
@@ -136,7 +136,7 @@
     color: 0x0F1E00,
     metalness: 0.5,
     roughness: 0.5,
-    opacity: 0.65,
+    opacity: 0.8,
     transparent: true,
     shading: THREE.SmoothShading,
     envMapIntensity: 5,
@@ -152,7 +152,7 @@
     color: 0x050501,
     metalness: 0.5,
     roughness: 0,
-    opacity: 0.65,
+    opacity: 0.8,
     transparent: true,
     shading: THREE.SmoothShading,
     envMapIntensity: 0.5,
@@ -311,7 +311,7 @@
     }
 
     requestAnimationFrame(animate);
-    TWEEN.update();
+    //TWEEN.update();
     /*for ( var i = 0, l = objects.length; i < l; i ++ ) {
       var object = objects[ i ];
       object.rotation.y += 0.005;
@@ -339,7 +339,7 @@
  }
 
 
-  backgroundVideo()
+ ////backgroundVideo()
 
 
  function tween(mesh) {
@@ -362,7 +362,7 @@
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    backgroundVideo()
+    //backgroundVideo()
   });
 
   animate();
