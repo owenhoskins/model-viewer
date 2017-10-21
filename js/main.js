@@ -66,7 +66,7 @@
   var texloader = new THREE.TextureLoader(loadingManager);
   var jsonloader = new THREE.JSONLoader(loadingManager);
   var texpath = 'textures/';
-  var modelpath = 'models/';
+  var modelpath = 'geo/';
 
 
   /*Enviroment Map*/
@@ -110,20 +110,18 @@
 
   /* LOAD TEXTURES */
 
-  //var normal = texloader.load(texpath + 'bottle_low_Lopoly_Normal.jpg');
-  //normal.warpS = normal.wrapT = THREE.RepeatWrapping;
+  var bottleNormal = texloader.load(texpath + 'eve_bottle_normal.jpg');
+  bottleNormal.warpS = bottleNormal.wrapT = THREE.RepeatWrapping;
 
-  // selavy_label.png
-  var labelTexture = texloader.load(texpath + 'selavy_label.png');
+  var labelTexture = texloader.load(texpath + 'eve_label.jpg');
   labelTexture.warpS = labelTexture.wrapT = THREE.RepeatWrapping;
 
-  // Crown_Sticker_6.png
-  var stickerTexture = texloader.load(texpath + 'Crown_Sticker_6.png');
-  stickerTexture.warpS = stickerTexture.wrapT = THREE.RepeatWrapping;
-
-  // TexturesCom_PaperCrumpled0030_1_seamless_S.jpg
-  var foilTexture = texloader.load(texpath + 'TexturesCom_PaperCrumpled0030_1_seamless_S.jpg');
+  var foilTexture = texloader.load(texpath + 'eve_foil_color.jpg');
   foilTexture.warpS = foilTexture.wrapT = THREE.RepeatWrapping;
+
+  var foilNormal = texloader.load(texpath + 'eve_foil_normal.jpg');
+  foilNormal.warpS = foilNormal.wrapT = THREE.RepeatWrapping;
+
 
   /* MATERIALS */
 
@@ -133,6 +131,7 @@
   var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
     map: null,
     envMap: skyCube2,
+    normalMap: bottleNormal,
     color: 0x0F1E00,
     metalness: 0.5,
     roughness: 0.5,
@@ -149,6 +148,7 @@
   var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
     map: null,
     envMap: skyCube,
+    normalMap: bottleNormal,
     color: 0x050501,
     metalness: 0.5,
     roughness: 0,
@@ -168,48 +168,34 @@
      envMapIntensity: 0.5,
   });
 
-  var sticker = new THREE.MeshPhysicalMaterial({
-     map: stickerTexture,
-     metalness: 0,
-     roughness: 0.5,
-     envMap: skyCube2,
-     envMapIntensity: 0.5,
-  });
-
   var foil = new THREE.MeshPhysicalMaterial({
-     //map: foilTexture,
+     map: foilTexture,
+     normalMap: foilNormal,
      metalness: 0,
      roughness: 0.1,
-     //normalMap: normal,
      envMap: skyCube2,
      envMapIntensity: 0.1,
   });
 
 
-  /* BASE REFLECTION */
-  jsonloader.load(modelpath + 'bottle-reduced.json', function (geometry) {
+  // BASE REFLECTION
+  jsonloader.load(modelpath + '171020_eve_glass.json', function (geometry) {
     addMesh(geometry, 49.9, bottleFrontMaterial);
   });
 
-  /* BASE REFRACTION */
-  jsonloader.load(modelpath + 'bottle-reduced.json', function (geometry) {
+  // BASE REFRACTION
+  jsonloader.load(modelpath + '171020_eve_glass.json', function (geometry) {
     addMesh(geometry, 50, bottleBackMaterial);
   });
 
-  /* LABEL */
-  jsonloader.load(modelpath + 'label-reduced.json', function (geometry) {
+  // LABEL
+  jsonloader.load(modelpath + '171020_eve_label.json', function (geometry) {
      var material = label;
      addMesh(geometry, 50, material);
   });
 
-  /* STICKER */
-  jsonloader.load(modelpath + 'crown-label-reduced.json', function (geometry) {
-     var material = sticker;
-     addMesh(geometry, 50, material);
-  });
-
-  /* FOIL */
-  jsonloader.load(modelpath + 'foil-reduced.json', function (geometry) {
+  // FOIL
+  jsonloader.load(modelpath + '171020_eve_foil.json', function (geometry) {
     addMesh(geometry, 50, foil);
   });
 
@@ -235,66 +221,6 @@
   dirLight.position.multiplyScalar( 50 );
   scene.add( dirLight );
 
-
-
-  //dirLight.position.set( 1, 0.75, 1 );
-  //scene.add( dirLight );
-
-  // dirLight.shadowCameraVisible = true;
-  /*dirLight.castShadow = true;
-  dirLight.shadowMapWidth = dirLight.shadowMapHeight = 1024*2;
-  var d = 30;
-  dirLight.shadowCameraLeft = -d;
-  dirLight.shadowCameraRight = d;
-  dirLight.shadowCameraTop = d;
-  dirLight.shadowCameraBottom = -d;
-  // the magic is here - this needs to be tweaked if you change dimensions
-  dirLight.shadowCameraFar = 3500;
-  dirLight.shadowBias = -0.000001;
-  dirLight.shadowDarkness = 0.35;
-  scene.add( dirLight );
-*/
-
-  /*LIGHTS*/
-/*
-  Light1 = new THREE.PointLight(0xffffff);
-  Light1.castShadow = true;
-  Light1.position.set(90, 20, 140); // x, y, z,
-  Light1.intensity = .5;
-  Light1.distance = 250;
-  Light1.decay = 2;
-  Light1.shadow.camera.near = 10;
-  Light1.shadow.camera.far = 100;
-  Light1.shadow.camera.fov = 50;
-  scene.add(Light1);
-
-
-  Light2 = new THREE.PointLight(0xffffff);
-  Light2.castShadow = true;
-  Light2.position.set(-90, 40, -60); // x, y, z,
-  Light2.intensity = .5;
-  Light2.distance = 250;
-  Light2.decay = 2;
-  Light2.shadow.camera.near = 10;
-  Light2.shadow.camera.far = 100;
-  Light2.shadow.camera.fov = 50;
-  scene.add(Light2);
-
-
-  Light2 = new THREE.PointLight(0xffffff);
-  Light2.castShadow = true;
-  Light2.position.set(-34.62, 39.52, -5.41);
-  Light2.intensity = 1.83;
-  Light2.distance = 250;
-  Light2.decay = 2;
-  Light2.shadow.camera.near = 10;
-  Light2.shadow.camera.far = 100;
-  Light2.shadow.camera.fov = 50;
-  scene.add(Light2);
-
-  ambient = new THREE.AmbientLight(0xffffff)
-  ambient.intensity = 2;
-  scene.add(ambient);*/
 
   // Stats
   stats = new Stats();
