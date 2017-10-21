@@ -27,7 +27,7 @@
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 600);
   camera.position.x = 0;
-  camera.position.y = -10;
+  camera.position.y = 0;
   camera.position.z = 26;
   camera.lookAt(scene.position);
 
@@ -101,8 +101,8 @@
     var mesh = new THREE.Mesh(geometry, material);
     mesh.scale.set(s, s, s);
     //moves the bottle down when its origin point was a the bottom
-    //mesh.position.set( 0, -7, 0 );
-    //mesh.__dirtyPosition = true;
+    mesh.position.set( 0, -7, 0 );
+    mesh.__dirtyPosition = true;
     tween(mesh);
     scene.add(mesh);
     objects.push( mesh );
@@ -163,9 +163,9 @@
   var label = new THREE.MeshPhysicalMaterial({
      map: labelTexture,
      metalness: 0,
-     roughness: 0.5,
-     envMap: skyCube2,
-     envMapIntensity: 0.5,
+     roughness: 0.1,
+     // envMap: skyCube2,
+     // envMapIntensity: 0.1,
   });
 
   var foil = new THREE.MeshPhysicalMaterial({
@@ -190,8 +190,7 @@
 
   // LABEL
   jsonloader.load(modelpath + '171020_eve_label.json', function (geometry) {
-     var material = label;
-     addMesh(geometry, 50, material);
+    addMesh(geometry, 50, label);
   });
 
   // FOIL
