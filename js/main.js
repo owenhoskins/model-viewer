@@ -138,7 +138,7 @@
     opacity: 0.8,
     transparent: true,
     shading: THREE.SmoothShading,
-    envMapIntensity: 5,
+    envMapIntensity: 1,
     premultipliedAlpha: true
   });
 
@@ -171,10 +171,10 @@
   var foil = new THREE.MeshPhysicalMaterial({
      map: foilTexture,
      normalMap: foilNormal,
-     metalness: 0.1,
+     metalness: 0,
      roughness: 0.5,
      envMap: skyCube2,
-     envMapIntensity: 0.1,
+     envMapIntensity: 1,
   });
 
 
@@ -200,11 +200,7 @@
 
 
   // add hemi lights
-  var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 );
-  hemiLight.color.setHSL( 0.6, 1, 0.6 );
-  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-  hemiLight.position.set( 0, 500, 0 );
-  scene.add( hemiLight );
+/*
 
   // this is the Sun
   var dirLight = new THREE.DirectionalLight( 0xffffff, 0.4 );
@@ -214,12 +210,19 @@
   scene.add( dirLight );
 
   // this is the Sun
+*/
+
+  var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 );
+  hemiLight.color.setHSL( 0.6, 1, 0.6 );
+  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+  hemiLight.position.set( 0, 500, 0 );
+  scene.add( hemiLight );
+
   var dirLight = new THREE.DirectionalLight( 0xffffff, 0.4 );
   dirLight.color.setHSL( 0.1, 1, 0.95 );
-  dirLight.position.set( -60, -50, 150 ); // fromX, fromY, fromZ
+  dirLight.position.set( -60, 70, 150 ); // fromX, fromY, fromZ
   dirLight.position.multiplyScalar( 50 );
   scene.add( dirLight );
-
 
   // Stats
   stats = new Stats();
