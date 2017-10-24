@@ -171,8 +171,8 @@
   var foil = new THREE.MeshPhysicalMaterial({
      map: foilTexture,
      normalMap: foilNormal,
-     metalness: 0,
-     roughness: 0.1,
+     metalness: 0.1,
+     roughness: 0.5,
      envMap: skyCube2,
      envMapIntensity: 0.1,
   });
@@ -189,7 +189,7 @@
   });
 
   // LABEL
-  jsonloader.load(modelpath + '171020_eve_label.json', function (geometry) {
+  jsonloader.load(modelpath + '171023_eve_label.json', function (geometry) {
     addMesh(geometry, 50, label);
   });
 
