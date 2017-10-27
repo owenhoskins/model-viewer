@@ -91,8 +91,8 @@
     path + 'py' + format, path + 'ny' + format,
     path + 'pz' + format, path + 'nz' + format
   ];
-  var skyCube2 = new THREE.CubeTextureLoader(loadingManager).load(urls);
-  skyCube2.format = THREE.RGBFormat;
+  var lightCube = new THREE.CubeTextureLoader(loadingManager).load(urls);
+  lightCube.format = THREE.RGBFormat;
 
   scene.background = skyCube
 
@@ -101,8 +101,8 @@
     var mesh = new THREE.Mesh(geometry, material);
     mesh.scale.set(s, s, s);
     //moves the bottle down when its origin point was a the bottom
-    mesh.position.set( 0, -7, 0 );
-    mesh.__dirtyPosition = true;
+    //mesh.position.set( 0, -7, 0 );
+    //mesh.__dirtyPosition = true;
     tween(mesh);
     scene.add(mesh);
     objects.push( mesh );
@@ -126,11 +126,12 @@
   /* MATERIALS */
 
   // reflection
-  skyCube2.mapping = THREE.CubeReflectionMapping;
+  skyCube.mapping = THREE.CubeReflectionMapping;
 
   var bottleFrontMaterial = new THREE.MeshPhysicalMaterial( {
     map: null,
-    envMap: skyCube2,
+    envMap: skyCube,
+    envMapIntensity: 0.5,
     normalMap: bottleNormal,
     color: 0x0F1E00,
     metalness: 0.5,
@@ -138,7 +139,6 @@
     opacity: 0.8,
     transparent: true,
     shading: THREE.SmoothShading,
-    envMapIntensity: 1,
     premultipliedAlpha: true
   });
 
@@ -148,14 +148,14 @@
   var bottleBackMaterial = new THREE.MeshPhysicalMaterial( {
     map: null,
     envMap: skyCube,
+    envMapIntensity: 0.5,
     normalMap: bottleNormal,
     color: 0x050501,
     metalness: 0.5,
     roughness: 0,
-    opacity: 0.8,
+    opacity: 0.9,
     transparent: true,
     shading: THREE.SmoothShading,
-    envMapIntensity: 0.5,
     refractionRatio: 0.95, // CubeRefractionMapping
     premultipliedAlpha: true
   });
@@ -163,8 +163,9 @@
   var label = new THREE.MeshPhysicalMaterial({
      map: labelTexture,
      metalness: 0,
-     roughness: 0.1,
-     // envMap: skyCube2,
+     roughness: 1, // spreads out the specular / simulates a rough surface
+     reflectivity: 0
+     // envMap: lightCube,
      // envMapIntensity: 0.1,
   });
 
@@ -173,14 +174,14 @@
      normalMap: foilNormal,
      metalness: 0,
      roughness: 0.5,
-     envMap: skyCube2,
+     envMap: lightCube,
      envMapIntensity: 1,
   });
 
 
   // BASE REFLECTION
   jsonloader.load(modelpath + '171020_eve_glass.json', function (geometry) {
-    addMesh(geometry, 49.9, bottleFrontMaterial);
+    addMesh(geometry, 49.25, bottleFrontMaterial);
   });
 
   // BASE REFRACTION
@@ -189,7 +190,7 @@
   });
 
   // LABEL
-  jsonloader.load(modelpath + '171023_eve_label.json', function (geometry) {
+  jsonloader.load(modelpath + '171020_eve_label.json', function (geometry) {
     addMesh(geometry, 50, label);
   });
 
@@ -212,18 +213,19 @@
   // this is the Sun
 */
 
-  var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 );
+  var hemiLight = new THREE.HemisphereLight( 0xf0f8ff, 0xfff9f0, 0.5 );
   hemiLight.color.setHSL( 0.6, 1, 0.6 );
   hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
   hemiLight.position.set( 0, 500, 0 );
   scene.add( hemiLight );
 
+/*
   var dirLight = new THREE.DirectionalLight( 0xffffff, 0.4 );
   dirLight.color.setHSL( 0.1, 1, 0.95 );
   dirLight.position.set( -60, 70, 150 ); // fromX, fromY, fromZ
   dirLight.position.multiplyScalar( 50 );
   scene.add( dirLight );
-
+*/
   // Stats
   stats = new Stats();
   stats.domElement.style.position = 'absolute';
